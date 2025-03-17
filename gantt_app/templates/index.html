@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>甘特图任务管理</title>
+    <!-- 引入Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- 引入日期选择器CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- 自定义CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 任务管理侧边栏 -->
+            <div class="col-md-4 task-sidebar">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h3>项目任务管理</h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- 新增任务表单 -->
+                        <form id="add-task-form" action="{{ url_for('add_task') }}" method="post" class="mb-4">
+                            <h4>添加新任务</h4>
+                            <div class="mb-3">
+                                <label for="task_name" class="form-label">任务名称</label>
+                                <input type="text" class="form-control" id="task_name" name="task_name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="start_date" class="form-label">开始日期</label>
+                                <input type="text" class="form-control date-picker" id="start_date" name="start_date" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="finish_date" class="form-label">结束日期</label>
+                                <input type="text" class="form-control date-picker" id="finish_date" name="finish_date" required>
+                            </div>
+                            <button type="submit" class="btn btn-success">添加任务</button>
+                        </form>
+
+                        <!-- 任务列表 -->
+                        <h4>现有任务</h4>
+                        <div class="task-list">
+                            {% for task in tasks %}
+                            <div class="task-item card mb-2">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ task.Task }}</h5>
+                                    <p class="card-text">
+                                        从 {{ task.Start }} 到 {{ task.Finish }}
+                                    </p>
+                                    <div class="d-flex justify-content-between">
+                                        <button class="btn btn-sm btn-outline-primary edit-task-btn" 
+                                                data-index="{{ loop.index0 }}"
+                                                data-task="{{ task.Task }}"
+                                                data-start="{{ task.Start }}"
+                                                data-finish="{{ task.Finish }}">
+                                            编辑
+                                        </button>
+                                        <form action="{{ url_for('delete_task') }}" method="post" style="display: inline;">
+                                            <input type="hidden" name="task_index" value="{{ loop.index0 }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">删除</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 甘特图展示区 -->
+            <div class="col-md-8 gantt-display">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h3>甘特图预览</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="ratio ratio-16x9">
+                            <iframe src="{{ url_for('static', filename='gantt_chart.html') }}" allowfullscreen></iframe>
+                        </div>
+                        <div class="mt-3">
+                            <a href="{{ url_for('static', filename='gantt_chart.png') }}" class="btn btn-outline-secondary" download>
+                                下载PNG图片
+                            </a>
+                            <a href="{{ url_for('static', filename='gantt_chart.html') }}" class="btn btn-outline-secondary" download>
+                                下载HTML文件
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑任务模态框 -->
+    <div class="modal fade" id="editTaskModal" tabindex="-1" aria-labelledby="editTaskModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editTaskModalLabel">编辑任务</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="edit-task-form" action="{{ url_for('update_task') }}" method="post">
+                    <div class="modal-body">
+                        <input type="hidden" id="edit_task_index" name="task_index">
+                        <div class="mb-3">
+                            <label for="edit_task_name" class="form-label">任务名称</label>
+                            <input type="text" class="form-control" id="edit_task_name" name="task_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_start_date" class="form-label">开始日期</label>
+                            <input type="text" class="form-control date-picker" id="edit_start_date" name="start_date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_finish_date" class="form-label">结束日期</label>
+                            <input type="text" class="form-control date-picker" id="edit_finish_date" name="finish_date" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">保存更改</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入Bootstrap JS 和依赖 -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <!-- 引入日期选择器JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
+    <!-- 引入自定义JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+[
+    {
+        "Task": "Reporting",
+        "Start": "2025-05-01",
+        "Finish": "2025-06-30",
+        "Resource": "Reporting"
+    },
+    {
+        "Task": "Evaluation and Testing",
+        "Start": "2025-03-01",
+        "Finish": "2025-04-30",
+        "Resource": "Evaluation and Testing"
+    },
+    {
+        "Task": "Model Optimization",
+        "Start": "2024-11-01",
+        "Finish": "2025-02-28",
+        "Resource": "Model Optimization"
+    },
+    {
+        "Task": "Baseline Models",
+        "Start": "2024-05-01",
+        "Finish": "2024-10-31",
+        "Resource": "Baseline Models"
+    },
+    {
+        "Task": "Data Preparation",
+        "Start": "2024-01-01",
+        "Finish": "2024-04-30",
+        "Resource": "Data Preparation"
+    }
+]
